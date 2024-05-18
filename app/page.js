@@ -3,6 +3,8 @@ import axios from "axios";
 import FormData from "form-data";
 import { useState } from "react";
 
+import Loading from "react-loading";
+
 import { ethers } from "ethers";
 import randomNumber from "./randomNumber.json";
 
@@ -15,6 +17,8 @@ const page = () => {
   const [userInput, setUserInput] = useState("");
   const [hashFromIpfs, setHashFromIpfs] = useState("");
   const [randomNumero, setRandomNumero] = useState();
+  const [generating, setGenerating] = useState(false);
+  const [retrieving, setRetrieving] = useState(false);
 
   const API_KEY = "0c61222bc1ea3c068ab4";
   const API_SECRET =
@@ -57,6 +61,7 @@ const page = () => {
   };
 
   async function generate() {
+    setGenerating(true);
     const dataHashed = uploadToIpfs();
     console.log(dataHashed);
     try {
@@ -71,9 +76,11 @@ const page = () => {
     } catch (error) {
       console.log(error);
     }
+    setGenerating(false);
   }
 
   async function getRandomNumber() {
+    setRetrieving(true);
     try {
       const contract = new ethers.Contract(
         randomNumber.address,
@@ -86,6 +93,7 @@ const page = () => {
     } catch (error) {
       console.log(error);
     }
+    setRetrieving(false);
   }
 
   return (
@@ -108,12 +116,22 @@ const page = () => {
       >
         Generate Random Number
       </button>
+      {generating && (
+        <div className="mt-2 flex justify-center">
+          <Loading type="spin" color="black" height={20} width={20} />
+        </div>
+      )}
       <button
         onClick={getRandomNumber}
         className="w-60 h-10 bg-black text-gray-100 p-2 rounded-2xl"
       >
         Get Random Number
       </button>
+      {retrieving && (
+        <div className="mt-2 flex justify-center">
+          <Loading type="spin" color="black" height={20} width={20} />
+        </div>
+      )}
       <p>{randomNumero}</p>
     </div>
   );
